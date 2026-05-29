@@ -1,0 +1,213 @@
+{
+  "title": "University Platform",
+  "uid": "university-main",
+  "version": 2,
+  "schemaVersion": 38,
+  "refresh": "30s",
+  "time": { "from": "now-6h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Средняя оценка по факультетам",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 3 },
+              { "color": "green", "value": 4 }
+            ]
+          },
+          "custom": { "displayMode": "color-background" }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "avg_grade" },
+            "properties": [
+              { "id": "displayName", "value": "Средняя оценка" },
+              { "id": "custom.displayMode", "value": "color-background" }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "faculty" },
+            "properties": [{ "id": "displayName", "value": "Факультет" }]
+          }
+        ]
+      },
+      "options": { "sortBy": [{ "displayName": "Средняя оценка", "desc": true }] },
+      "targets": [
+        {
+          "datasource": { "type": "grafana-clickhouse-datasource" },
+          "rawSql": "SELECT faculty, round(avg(grade), 2) as avg_grade FROM university.grades GROUP BY faculty ORDER BY avg_grade DESC",
+          "format": "table",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Количество студентов по факультетам",
+      "type": "piechart",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "options": {
+        "pieType": "pie",
+        "displayLabels": ["name", "value"],
+        "legend": { "displayMode": "table", "placement": "right", "values": ["value"] }
+      },
+      "fieldConfig": {
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "cnt" }, "properties": [{ "id": "displayName", "value": "Студентов" }] },
+          { "matcher": { "id": "byName", "options": "faculty" }, "properties": [{ "id": "displayName", "value": "Факультет" }] }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": { "type": "grafana-clickhouse-datasource" },
+          "rawSql": "SELECT faculty, count() as cnt FROM university.students GROUP BY faculty ORDER BY cnt DESC",
+          "format": "table",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Оценки по предметам",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 3 },
+              { "color": "green", "value": 4 }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "avg_grade" },
+            "properties": [
+              { "id": "displayName", "value": "Средняя оценка" },
+              { "id": "custom.displayMode", "value": "color-background" }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "subject" },
+            "properties": [{ "id": "displayName", "value": "Предмет" }]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": { "type": "grafana-clickhouse-datasource" },
+          "rawSql": "SELECT subject, round(avg(grade), 2) as avg_grade FROM university.grades GROUP BY subject ORDER BY avg_grade DESC",
+          "format": "table",
+          "refId": "C"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Последние события (Kafka → ClickHouse)",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "fieldConfig": {
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "event_type" }, "properties": [{ "id": "displayName", "value": "Событие" }] },
+          { "matcher": { "id": "byName", "options": "room" }, "properties": [{ "id": "displayName", "value": "Аудитория" }] },
+          { "matcher": { "id": "byName", "options": "campus" }, "properties": [{ "id": "displayName", "value": "Корпус" }] },
+          { "matcher": { "id": "byName", "options": "ts" }, "properties": [{ "id": "displayName", "value": "Время" }] }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": { "type": "grafana-clickhouse-datasource" },
+          "rawSql": "SELECT event_type, room, campus, toString(ts) as ts FROM university.events ORDER BY ts DESC LIMIT 20",
+          "format": "table",
+          "refId": "D"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Загрузка аудиторий",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 20 },
+              { "color": "red", "value": 40 }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "total" },
+            "properties": [
+              { "id": "displayName", "value": "Кол-во человек" },
+              { "id": "custom.displayMode", "value": "color-background" }
+            ]
+          },
+          { "matcher": { "id": "byName", "options": "room" }, "properties": [{ "id": "displayName", "value": "Аудитория" }] },
+          { "matcher": { "id": "byName", "options": "campus" }, "properties": [{ "id": "displayName", "value": "Корпус" }] }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": { "type": "grafana-clickhouse-datasource" },
+          "rawSql": "SELECT room, campus, sum(count) as total FROM university.room_occupancy GROUP BY room, campus ORDER BY total DESC",
+          "format": "table",
+          "refId": "E"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Средняя оценка студентов (Feature Store)",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 3 },
+              { "color": "green", "value": 4 }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "avg_grade" },
+            "properties": [
+              { "id": "displayName", "value": "Средняя оценка" },
+              { "id": "custom.displayMode", "value": "color-background" }
+            ]
+          },
+          { "matcher": { "id": "byName", "options": "student_id" }, "properties": [{ "id": "displayName", "value": "Студент ID" }] },
+          { "matcher": { "id": "byName", "options": "faculty" }, "properties": [{ "id": "displayName", "value": "Факультет" }] },
+          { "matcher": { "id": "byName", "options": "group_name" }, "properties": [{ "id": "displayName", "value": "Группа" }] },
+          { "matcher": { "id": "byName", "options": "total_events" }, "properties": [{ "id": "displayName", "value": "Событий" }] }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": { "type": "grafana-clickhouse-datasource" },
+          "rawSql": "SELECT student_id, faculty, group_name, round(avg_grade, 2) as avg_grade, total_events FROM university.student_features WHERE faculty != 'unknown' ORDER BY avg_grade DESC LIMIT 10",
+          "format": "table",
+          "refId": "F"
+        }
+      ]
+    }
+  ]
+}
