@@ -1,8 +1,8 @@
-# 🎓 Университетская Data Platform
+# Университетская Data Platform
 
 Учебная платформа данных на Docker Compose, реализующая все 6 частей задания НИР.
 
-## 📐 Архитектура
+## Архитектура
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -36,7 +36,7 @@
          [Streamlit]
 ```
 
-## 🚀 Быстрый старт
+## Быстрый старт
 
 ### Требования
 - Docker Engine ≥ 24
@@ -70,7 +70,7 @@ docker compose ps
 | Cube.js      | http://localhost:4000      | —                  |
 | ClickHouse   | http://localhost:8123      | default / (пусто)  |
 
-## 📦 Структура проекта
+## Структура проекта
 
 ```
 data-platform/
@@ -101,7 +101,7 @@ data-platform/
     └── ADR.md                  # Architecture Decision Records
 ```
 
-## 🔧 Части проекта
+## Части проекта
 
 ### Часть 1 — Доменная архитектура
 - Домены: `academic_performance`, `campus_infrastructure`, `student_engagement`
@@ -130,7 +130,7 @@ data-platform/
 - GitHub Actions: test → validate → build → deploy
 - Pytest: 5 unit-тестов трансформаций
 
-## ❓ Troubleshooting
+## Troubleshooting
 
 ```bash
 # Статус контейнеров
